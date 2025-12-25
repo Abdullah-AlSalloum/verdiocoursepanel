@@ -30,6 +30,18 @@ export default function QuizzesPage() {
   });
   const [selectedCourseId, setSelectedCourseId] = useState<string>("");
 
+  // Delete quiz by id
+  const handleDelete = async (quizId: string) => {
+    if (!window.confirm("هل أنت متأكد أنك تريد حذف هذا الاختبار؟")) return;
+    try {
+      await deleteDoc(doc(db, "quizzes", quizId));
+      setQuizzes((prev) => prev.filter((q) => q.id !== quizId));
+    } catch (error) {
+      alert("حدث خطأ أثناء الحذف. حاول مرة أخرى.");
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       const courseSnap = await getDocs(collection(db, "courses"));
@@ -68,18 +80,14 @@ export default function QuizzesPage() {
     });
   };
 
-  const handleDelete = async (id: string) => {
-    await deleteDoc(doc(db, "quizzes", id));
-    setQuizzes((prev) => prev.filter((q) => q.id !== id));
-  };
-
   return (
-    <div className="p-4 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4 text-white text-right">إدارة الاختبارات</h1>
-      <div className="mb-4 text-right">
-        <label className="block mb-1 font-semibold text-white">تصفية حسب الدورة</label>
+    <div className="max-w-3xl mx-auto w-full px-2 md:px-0" dir="rtl" style={{ fontFamily: 'Cairo, Noto Sans Arabic, sans-serif' }}>
+      {/* ...existing code for the page layout, form, and table... */}
+      <h1 className="text-3xl font-extrabold mb-8 text-blue-700 dark:text-blue-300 text-right">إدارة الاختبارات</h1>
+      <div className="mb-6 text-right">
+        <label className="block mb-2 font-semibold text-blue-700 dark:text-blue-200">تصفية حسب الدورة</label>
         <select
-          className="p-2 rounded border bg-zinc-900 text-white border-zinc-700"
+          className="p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-right focus:outline-none focus:ring-2 focus:ring-blue-400 transition text-zinc-900 dark:text-white"
           value={selectedCourseId}
           onChange={e => setSelectedCourseId(e.target.value)}
         >
@@ -89,14 +97,14 @@ export default function QuizzesPage() {
           ))}
         </select>
       </div>
-      <form onSubmit={handleSubmit} className="mb-6 bg-zinc-800 p-4 rounded text-right">
-        <div className="mb-2">
-          <label className="block mb-1 text-zinc-200">الدورة</label>
+      <form onSubmit={handleSubmit} className="mb-10 grid grid-cols-1 md:grid-cols-2 gap-6 bg-white dark:bg-zinc-900 p-6 rounded-2xl shadow-lg border border-zinc-200 dark:border-zinc-800 text-right">
+        <div className="col-span-1 md:col-span-2">
+          <label className="block mb-2 font-semibold text-zinc-700 dark:text-zinc-200">الدورة</label>
           <select
             name="courseId"
             value={form.courseId}
             onChange={handleChange}
-            className="w-full p-2 rounded border bg-zinc-900 text-white border-zinc-700 text-right"
+            className="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-right focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
             required
           >
             <option value="">اختر الدورة</option>
@@ -107,45 +115,46 @@ export default function QuizzesPage() {
             ))}
           </select>
         </div>
-        <div className="mb-2">
-          <label className="block mb-1 text-zinc-200">عنوان الاختبار (بالعربية)</label>
+        <div>
+          <label className="block mb-2 font-semibold text-zinc-700 dark:text-zinc-200">عنوان الاختبار (بالعربية)</label>
           <input
             name="title_ar"
             value={form.title_ar}
             onChange={handleChange}
-            className="w-full p-2 rounded border bg-zinc-900 text-white border-zinc-700 text-right"
+            className="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-right focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
             required
           />
         </div>
-        <div className="mb-2">
-          <label className="block mb-1 text-zinc-200">عنوان الاختبار (بالإنجليزية)</label>
+        <div>
+          <label className="block mb-2 font-semibold text-zinc-700 dark:text-zinc-200">عنوان الاختبار (بالإنجليزية)</label>
           <input
             name="title_en"
             value={form.title_en}
             onChange={handleChange}
-            className="w-full p-2 rounded border bg-zinc-900 text-white border-zinc-700 text-right"
+            className="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-right focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
             required
           />
         </div>
-        {/* إدارة الأسئلة يمكن إضافتها هنا */}
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded mt-2 hover:bg-blue-700 transition"
-        >
-          {editingQuiz ? "تحديث الاختبار" : "إضافة اختبار"}
-        </button>
-        {editingQuiz && (
+        <div className="col-span-1 md:col-span-2 flex gap-3 justify-end mt-2">
           <button
-            type="button"
-            className="ml-2 px-4 py-2 rounded bg-gray-600 text-white hover:bg-gray-700"
-            onClick={() => {
-              setEditingQuiz(null);
-              setForm({ courseId: "", title_ar: "", title_en: "", questions: [] });
-            }}
+            type="submit"
+            className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold shadow hover:bg-blue-700 transition disabled:opacity-60"
           >
-            إلغاء
+            {editingQuiz ? "تحديث" : "إضافة"}
           </button>
-        )}
+          {editingQuiz && (
+            <button
+              type="button"
+              className="bg-gray-400 text-white px-6 py-2 rounded-xl font-bold shadow hover:bg-gray-500 transition"
+              onClick={() => {
+                setEditingQuiz(null);
+                setForm({ courseId: "", title_ar: "", title_en: "", questions: [] });
+              }}
+            >
+              إلغاء
+            </button>
+          )}
+        </div>
       </form>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-zinc-900 rounded shadow text-white text-right" dir="rtl" style={{fontFamily: 'Cairo, Noto Sans Arabic, sans-serif'}}>

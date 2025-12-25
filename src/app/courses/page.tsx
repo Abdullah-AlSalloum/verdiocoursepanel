@@ -57,7 +57,12 @@ export default function CoursesPage() {
           ...form,
         });
       }
-      setForm({});
+      setForm({
+        titleAr: "",
+        titleEn: "",
+        descriptionAr: "",
+        instructor: ""
+      });
       setEditingId(null);
       fetchCourses();
     } catch (err) {
@@ -79,18 +84,18 @@ export default function CoursesPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto w-full" dir="rtl" style={{ fontFamily: 'Cairo, Noto Sans Arabic, sans-serif' }}>
-      <h1 className="text-2xl font-bold mb-6 text-white">إدارة الدورات</h1>
+    <div className="max-w-5xl mx-auto w-full px-2 md:px-10" dir="rtl" style={{ fontFamily: 'Cairo, Noto Sans Arabic, sans-serif' }}>
+      <h1 className="text-3xl font-extrabold mb-8 text-blue-700 dark:text-blue-300 text-right">إدارة الدورات</h1>
       <form
         onSubmit={handleSubmit}
-        className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white dark:bg-zinc-900 p-4 rounded shadow mb-8"
+        className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white dark:bg-zinc-900 p-6 rounded-2xl shadow-lg border border-zinc-200 dark:border-zinc-800 mb-10"
       >
         <input
           name="titleAr"
           placeholder="اسم الدورة (بالعربية)"
           value={form.titleAr || ""}
           onChange={handleChange}
-          className="p-2 rounded border text-right"
+          className="p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-right focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
           required
         />
         <input
@@ -98,7 +103,7 @@ export default function CoursesPage() {
           placeholder="اسم الدورة (بالإنجليزية)"
           value={form.titleEn || ""}
           onChange={handleChange}
-          className="p-2 rounded border text-right"
+          className="p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-right focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
           required
         />
         <input
@@ -106,7 +111,7 @@ export default function CoursesPage() {
           placeholder="اسم المدرس"
           value={form.instructor || ""}
           onChange={handleChange}
-          className="p-2 rounded border text-right"
+          className="p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-right focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
           required
         />
         {/* حقل وصف الدورة */}
@@ -115,13 +120,13 @@ export default function CoursesPage() {
           placeholder="وصف الدورة (بالعربية)"
           value={form.descriptionAr || ""}
           onChange={handleChange}
-          className="p-2 rounded border col-span-1 md:col-span-2 text-right"
+          className="p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 col-span-1 md:col-span-2 text-right focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
           required
         />
-        <div className="col-span-1 md:col-span-2 flex gap-2 justify-end">
+        <div className="col-span-1 md:col-span-2 flex gap-3 justify-end mt-2">
           <button
             type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition disabled:opacity-60"
+            className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold shadow hover:bg-blue-700 transition disabled:opacity-60"
             disabled={uploading}
           >
             {uploading ? (editingId ? "جاري التحديث..." : "جاري الإضافة...") : (editingId ? "تحديث" : "إضافة")}
@@ -129,7 +134,7 @@ export default function CoursesPage() {
           {editingId && (
             <button
               type="button"
-              className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500 transition"
+              className="bg-gray-400 text-white px-6 py-2 rounded-xl font-bold shadow hover:bg-gray-500 transition"
               onClick={() => {
                 setForm({});
                 setEditingId(null);
@@ -139,34 +144,32 @@ export default function CoursesPage() {
             </button>
           )}
         </div>
-        {error && <div className="text-red-600 col-span-2">{error}</div>}
+        {error && <div className="text-red-600 col-span-2 font-bold text-right mt-2">{error}</div>}
       </form>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-10">
         {loading ? (
-          <div className="col-span-full text-center text-white">جاري التحميل...</div>
+          <div className="col-span-full text-center text-blue-700 dark:text-blue-200 font-bold text-lg">جاري التحميل...</div>
         ) : courses.length === 0 ? (
-          <div className="col-span-full text-center text-white">لا توجد دورات.</div>
+          <div className="col-span-full text-center text-zinc-500 dark:text-zinc-300 font-bold text-lg">لا توجد دورات.</div>
         ) : (
           courses.map((course) => (
             <div
               key={course.id}
-              className="bg-white dark:bg-zinc-900 rounded shadow p-4 flex flex-col cursor-pointer hover:shadow-lg transition border border-zinc-800"
+              className="bg-white dark:bg-zinc-900 rounded-2xl shadow-lg border border-zinc-200 dark:border-zinc-800 p-6 flex flex-col cursor-pointer hover:shadow-2xl transition-all duration-200 group"
               onClick={() => window.location.href = `/courses/${course.id}`}
             >
-              {/* Removed course image display */}
-              <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-1">{course.titleAr} / {course.titleEn}</h2>
-              <div className="text-zinc-500 dark:text-zinc-300 mb-2">{course.instructor}</div>
-              {/* Lessons count will be shown dynamically in details page */}
-              <div className="text-zinc-600 dark:text-zinc-200 mb-2 line-clamp-2">{course.descriptionAr}</div>
-              <div className="flex gap-2 mt-auto justify-end">
+              <h2 className="text-xl font-extrabold text-zinc-900 dark:text-white mb-2 group-hover:text-blue-700 transition">{course.titleAr} / {course.titleEn}</h2>
+              <div className="text-zinc-500 dark:text-zinc-300 mb-2 font-medium">{course.instructor}</div>
+              <div className="text-zinc-600 dark:text-zinc-200 mb-4 line-clamp-2">{course.descriptionAr}</div>
+              <div className="flex gap-3 mt-auto justify-end">
                 <button
-                  className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition"
+                  className="bg-yellow-500 text-white px-4 py-1 rounded-xl font-bold shadow hover:bg-yellow-600 transition"
                   onClick={e => { e.stopPropagation(); handleEdit(course); }}
                 >
                   تعديل
                 </button>
                 <button
-                  className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition"
+                  className="bg-red-600 text-white px-4 py-1 rounded-xl font-bold shadow hover:bg-red-700 transition"
                   onClick={e => { e.stopPropagation(); handleDelete(course.id); }}
                 >
                   حذف
